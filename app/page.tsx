@@ -35,13 +35,13 @@ export default function Home() {
     const derivedSeed = derivePath(path, seed.toString("hex")).key;
     const keypair = Keypair.fromSeed(derivedSeed);
 
-    const privateKey = Buffer.from(keypair.secretKey).toString("hex"); 
+    const privateKey = Buffer.from(keypair.secretKey).toString("hex");
 
     const newWallet = {
       path,
       publicKey: keypair.publicKey.toBase58(),
       privateKey,
-      showPrivate: false, 
+      showPrivate: false,
     };
 
     const updatedWallets = [...wallets, newWallet];
@@ -56,17 +56,17 @@ export default function Home() {
     localStorage.setItem("wallets", JSON.stringify(updated));
   };
 
-  const deleteAddress = (index:number)=>{
-    const data = localStorage.getItem('wallets');
+  const deleteAddress = (index: number) => {
+    const data = localStorage.getItem("wallets");
 
-    if(!data){
+    if (!data) {
       return;
     }
     let addresses = JSON.parse(data) as string[];
     addresses.splice(index, 1);
-    setWallets(addresses  );
+    setWallets(addresses);
     localStorage.setItem("wallets", JSON.stringify(addresses));
-  }
+  };
 
   return (
     <div className="wrapper p-4">
@@ -90,9 +90,12 @@ export default function Home() {
       {wallets.length > 0 && (
         <div className="mt-4 space-y-3">
           {wallets.map((w, i) => (
-            <div key={i} className="p-3 border rounded bg-gray-50 flex justify-between">
-              <div>
-                <p>
+            <div
+              key={i}
+              className="p-3 border rounded bg-gray-50 flex flex-col sm:flex-row sm:justify-between border-box break-words overflow-hidden"
+            >
+              <div className="min-w-0">
+                <p className="break-all">
                   <strong>Public Key:</strong> {w.publicKey}
                 </p>
                 <p className="break-all">
@@ -100,11 +103,14 @@ export default function Home() {
                   {w.showPrivate ? w.privateKey : "••••••••••••••••"}
                 </p>
               </div>
-              <div className="flex flex-col justify-between">
-                <button className="mt-2" onClick={() => deleteAddress(i)}>
-                  {<Trash size={16} />}
+              <div className="flex flex-row sm:flex-col justify-between sm:ml-4 mt-2 sm:mt-0">
+                <button
+                  className="mr-2 sm:mr-0 sm:mt-2"
+                  onClick={() => deleteAddress(i)}
+                >
+                  <Trash size={16} />
                 </button>
-                <button className="mt-2" onClick={() => togglePrivateKey(i)}>
+                <button onClick={() => togglePrivateKey(i)}>
                   {w.showPrivate ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
