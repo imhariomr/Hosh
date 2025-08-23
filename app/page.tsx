@@ -1,6 +1,25 @@
 "use client";
 
-import Button from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Keypair } from "@solana/web3.js";
 import * as bip39 from "bip39";
 import { derivePath } from "ed25519-hd-key";
@@ -8,6 +27,7 @@ import { Eye, EyeClosed, EyeOff, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Home() {
+  const { setTheme } = useTheme();
   const [wallets, setWallets] = useState<any[]>([]);
   const [mnemonic, setMnemonic] = useState<string | null>(null);
 
@@ -70,17 +90,38 @@ export default function Home() {
 
   return (
     <div className="wrapper p-4">
-      <h1 className="text-3xl font-bold mb-4">Generate Solana Wallets</h1>
+      <div className="flex justify-between">
+        <h1 className="text-3xl font-bold mb-4">Generate Solana Wallets</h1>
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
-      <Button
-        label="Generate Wallet"
-        size="md"
-        variant="primary"
-        onClick={generateWallet}
-      />
+      <Button size="lg" onClick={generateWallet}>
+        Generate Wallet
+      </Button>
 
       {mnemonic && (
-        <div className="mt-4 p-3 rounded bg-gray-100">
+        <div className="mt-4 p-3 rounded">
           <p>
             <strong>Seed Phrase:</strong> {mnemonic}
           </p>
@@ -92,27 +133,45 @@ export default function Home() {
           {wallets.map((w, i) => (
             <div
               key={i}
-              className="p-3 border rounded bg-gray-50 flex flex-col sm:flex-row sm:justify-between border-box break-words overflow-hidden"
+              className="p-3 border rounded flex flex-col sm:flex-row sm:justify-between border-box break-words overflow-hidden"
             >
-              <div className="min-w-0">
+              <div className="min-w-0 space-y-2">
                 <p className="break-all">
                   <strong>Public Key:</strong> {w.publicKey}
                 </p>
                 <p className="break-all">
                   <strong>Private Key:</strong>{" "}
-                  {w.showPrivate ? w.privateKey : "••••••••••••••••"}
+                  {w.showPrivate
+                    ? w.privateKey
+                    : "••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"}
                 </p>
               </div>
-              <div className="flex flex-row sm:flex-col justify-between sm:ml-4 mt-2 sm:mt-0">
-                <button
-                  className="mr-2 sm:mr-0 sm:mt-2"
-                  onClick={() => deleteAddress(i)}
-                >
-                  <Trash size={16} />
-                </button>
-                <button onClick={() => togglePrivateKey(i)}>
-                  {w.showPrivate ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+              <div className="flex flex-row sm:flex-col items-center justify-between sm:ml-4 mt-2 sm:mt-0 space-y-2">
+                <AlertDialog>
+                  <AlertDialogTrigger>
+                    <Button size="icon">
+                      <Trash size={10} />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your account.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => deleteAddress(i)}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button size="icon" onClick={() => togglePrivateKey(i)}>
+                  {w.showPrivate ? <EyeOff size={10} /> : <Eye size={10} />}
+                </Button>
               </div>
             </div>
           ))}
